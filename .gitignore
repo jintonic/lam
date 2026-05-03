@@ -1,0 +1,6 @@
+# Secrets
+.env
+
+# OS/IDE Noise
+.DS_Store
+.vscode/

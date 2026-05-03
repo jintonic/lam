@@ -1,0 +1,48 @@
+services:
+  letta-db:
+    image: pgvector/pgvector:pg18-trixie
+    container_name: letta-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: letta
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: letta
+    volumes:
+      - memory:/var/lib/postgresql
+      - ./initdb.d:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U letta" ]
+      interval: 300s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+  letta:
+    image: letta/letta:latest
+    container_name: letta
+    restart: unless-stopped
+    ports: [ "8283:8283" ]
+    environment:
+      - LETTA_PG_URI=postgresql://letta:${DB_PASSWORD}@letta-db:5432/letta
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      letta-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8283/v1/health || exit 1" ]
+      interval: 300s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+  letta-mcp:
+    image: ghcr.io/oculairmedia/letta-mcp-server-rust:rust-latest
+    container_name: letta-mcp
+    restart: unless-stopped
+    environment:
+      - LETTA_SERVER_URL=http://letta:8283
+    depends_on:
+      letta:
+        condition: service_healthy
+volumes:
+  memory:
