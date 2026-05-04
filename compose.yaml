@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: letta
     volumes:
-      - memory:/var/lib/postgresql
+      - pgsql:/var/lib/postgresql
       - ./initdb.d:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U letta" ]
@@ -40,9 +40,10 @@ services:
     container_name: letta-mcp
     restart: unless-stopped
     environment:
-      - LETTA_SERVER_URL=http://letta:8283
+      - LETTA_BASE_URL=http://letta:8283
+      - LETTA_PASSWORD=${LETTA_PASSWORD}
     depends_on:
       letta:
         condition: service_healthy
 volumes:
-  memory:
+  pgsql:
