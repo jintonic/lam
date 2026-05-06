@@ -4,3 +4,6 @@
 # OS/IDE Noise
 .DS_Store
 .vscode/
+
+# services
+.letta
