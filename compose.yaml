@@ -9,9 +9,35 @@ services:
       POSTGRES_DB: letta
     volumes:
       - pgsql:/var/lib/postgresql
-      - ./initdb.d:/docker-entrypoint-initdb.d:ro
+      - ./letta/database:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U letta" ]
+      interval: 300s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+  letta-redis:
+    image: redis:alpine
+    container_name: letta-redis
+    restart: unless-stopped
+    ports: [ "6379:6379" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping" ]
+      interval: 300s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+      start_interval: 2s
+  letta-git:
+    build: ./letta/git
+    container_name: letta-git
+    restart: unless-stopped
+    ports: [ "8285:8285" ]
+    volumes:
+      - config:/root/.letta
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -s http://localhost:8285 || [ $? -eq 22 ] || [ $? -eq 0 ]" ]
       interval: 300s
       timeout: 5s
       retries: 3
@@ -22,10 +48,20 @@ services:
     container_name: letta
     restart: unless-stopped
     ports: [ "8283:8283" ]
+    volumes:
+      - config:/root/.letta
     environment:
       - LETTA_PG_URI=postgresql://letta:${DB_PASSWORD}@letta-db:5432/letta
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - LETTA_MEMFS_SERVICE_URL=http://letta-git:8285
+      - REDIS_URL=redis://letta-redis:6379
     depends_on:
+      letta-git:
+        condition: service_healthy
+      letta-redis:
+        condition: service_healthy
       letta-db:
         condition: service_healthy
     healthcheck:
@@ -47,3 +83,4 @@ services:
         condition: service_healthy
 volumes:
   pgsql:
+  config:
