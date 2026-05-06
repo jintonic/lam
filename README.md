@@ -95,6 +95,7 @@ brew install ollama
 ollama serve
 ollama pull llama3.1:8b
 ollama pull mxbai-embed-large
+ollama list
 ```
 
 The following environment variables should be given to the [Letta] server to use the local [Ollama] server in [compose.yaml](compose.yaml):
