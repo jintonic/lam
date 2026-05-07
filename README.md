@@ -18,6 +18,7 @@ The server can be accessed via [API] by other programs, including [Antigravity] 
 - [letta](letta)
   - [database/init.sql](letta/database/init.sql): a SQL script to [enable the vector extension][pgvector] for [PostgreSQL]. The script is executed automatically when a new [PostgreSQL] database is created.
   - [git](letta/git): Files to build the Docker image of the [Git] server to handle [MemFS] memory storage.
+  - [cli/statusline.py](letta/cli/statusline.py): a Python script to show token usage in Letta [CLI].
 - [backupDB.sh](backupDB.sh): back up the [PostgreSQL] database to OneDrive, zipped.
 - [restoreDB.sh](restoreDB.sh): restore the [PostgreSQL] database from the latest zipped backup file.
 
@@ -112,6 +113,39 @@ The system supports a two-layered restoration process to migrate agents to new e
 
 1. **Database Restoration (`./restore.sh`)**: Restores the PostgreSQL database from OneDrive backups. This is critical as it contains the unique `AGENT_ID` registered to the server, which serves as the primary key for the system.
 2. **Memory Restoration (`./restore.sh <agent_name>`)**: Configures the local agent's MemFS repository to sync with your GitHub backup (`jintonic/<agent_name>.git`) and pulls the latest memory files.
+
+### Token & Context Mechanics
+
+#### Token Estimation
+
+A reliable rule of thumb for English is 1,000 tokens ~ 750 words. However, technical content like C++ code or LaTeX is "denser" and can consume 2–3x more tokens due to symbols and indentation.
+
+#### Statelessness
+
+Cloud models (like Gemini) are stateless. They don't "remember" past turns on their own; Letta must bundle the necessary context (system prompt, history, and files) into every single request sent to the API.
+
+#### Context Composition
+
+In Letta, your "Input Context" is the sum of:
+
+- System Prompt (Who the agent is).
+- Core Memory/MemFS (Pinned files like persona.md).
+- Chat History (The sliding window of recent messages).
+- Current Prompt + @Attachments (The new data you just provided).
+
+#### Optimization Strategies
+
+The "Summarize & Clear" Loop: Periodically asking the agent to summarize the conversation into a MemFS file and then clearing the history is the most effective way to reduce token usage and filter out noise. This keeps the agent focused while preserving the "essence" of the work in a searchable format.
+
+#### Google Gemini Billing & Limits
+
+- **TPM Reset**: The Tokens Per Minute (TPM) limit is a rolling window. If you hit the ceiling (e.g., 250K for Flash Lite), you typically only need to wait 1–5 minutes for the "bucket" to empty.
+- **"Free-First" Billing**: If you enable a paid account, Google still honors the free usage tiers. You are only billed at the rate table ($0.25/1M tokens for Flash Lite) after your usage exceeds those free limits.
+- **Privacy via Billing**: Attaching billing information is a "privacy toggle." Once a billing account is linked, your data is governed by Paid Tier terms (not used for training), even if your actual monthly usage stays within the $0.00 free limit.
+
+#### Technical Verification
+
+One can verify exactly what is being sent (and check for "token bloat") by running Letta with the --debug flag and inspecting the log of the container in Docker Desktop.
 
 [server]: https://docs.letta.com/letta-code/docker
 [API]: https://docs.letta.com/guides/get-started/intro
