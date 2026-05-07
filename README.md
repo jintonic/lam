@@ -7,7 +7,6 @@ This repository contains configurations and documentation of a self-hosted [Lett
 
 The server can be accessed via [API] by other programs, including [Antigravity] through an [MCP] server, and the official Letta [ADE].
 
-
 ## Files
 
 - [compose.yaml](compose.yaml): the Docker [compose] file to start 5 services:
@@ -109,14 +108,10 @@ The following environment variables should be given to the [Letta] server to use
 
 ### Restoration & Migration
 
-The system supports a two-layered restoration process to migrate Mandy to new environments:
+The system supports a two-layered restoration process to migrate agents to new environments:
 
 1. **Database Restoration (`./restore.sh`)**: Restores the PostgreSQL database from OneDrive backups. This is critical as it contains the unique `AGENT_ID` registered to the server, which serves as the primary key for the system.
 2. **Memory Restoration (`./restore.sh <agent_name>`)**: Configures the local agent's MemFS repository to sync with your GitHub backup (`jintonic/<agent_name>.git`) and pulls the latest memory files.
-
-#### Responsibilities
-- **[PostgreSQL]**: Source of truth for agent existence, conversation history, and tool execution state.
-- **[MemFS]**: Source of truth for the "Mandy" persona, learned workflows, and persistent project context.
 
 [server]: https://docs.letta.com/letta-code/docker
 [API]: https://docs.letta.com/guides/get-started/intro
