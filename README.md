@@ -2,7 +2,11 @@
 
 This repository contains configurations and documentation of a self-hosted [Letta] [API] proxy [server] running in a [Docker] container that saves AI's memory using [MemFS] over [git], and uses [PostgreSQL] for metadata. The database is backed up to [OneDrive].
 
+- **[MemFS] (via [git])**: Stores the AI's core "identity"—persona, learned preferences, behavioral rules, and project-specific knowledge.
+- **[PostgreSQL]**: Stores operational metadata, including agent configurations, message history, and vector embeddings ([pgvector]) for semantic search.
+
 The server can be accessed via [API] by other programs, including [Antigravity] through an [MCP] server, and the official Letta [ADE].
+
 
 ## Files
 
@@ -102,6 +106,17 @@ The following environment variables should be given to the [Letta] server to use
 
 - `OPENAI_API_KEY`: not used, set to a dummy value
 - `OLLAMA_BASE_URL`: http://host.docker.internal:11434/v1, according to <https://docs.letta.com/letta-code/docker#using-letta-code-with-local-llm-inference>
+
+### Restoration & Migration
+
+The system supports a two-layered restoration process to migrate Mandy to new environments:
+
+1. **Database Restoration (`./restore.sh`)**: Restores the PostgreSQL database from OneDrive backups. This is critical as it contains the unique `AGENT_ID` registered to the server, which serves as the primary key for the system.
+2. **Memory Restoration (`./restore.sh <agent_name>`)**: Configures the local agent's MemFS repository to sync with your GitHub backup (`jintonic/<agent_name>.git`) and pulls the latest memory files.
+
+#### Responsibilities
+- **[PostgreSQL]**: Source of truth for agent existence, conversation history, and tool execution state.
+- **[MemFS]**: Source of truth for the "Mandy" persona, learned workflows, and persistent project context.
 
 [server]: https://docs.letta.com/letta-code/docker
 [API]: https://docs.letta.com/guides/get-started/intro
