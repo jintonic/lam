@@ -147,6 +147,10 @@ The "Summarize & Clear" Loop: Periodically asking the agent to summarize the con
 
 One can verify exactly what is being sent (and check for "token bloat") by running Letta with the --debug flag and inspecting the log of the container in Docker Desktop.
 
+### MemFS as PIM (Personal Information Management) System
+
+It is a great way for me to organize my ideas in Markdown format with the help of AI. My current project stays in the `system/` folder, once I finish it, I will instruct AI to move it out of `system/` folder so that I can start a new project in `system/` folder. As time goes by, my knowledge in that specific domain will be preserved in the MemFS, and I can access it through AI instead of manual grepping. The writing and organization is completely taken over by AI. MemFS is a new approach to PIM.
+
 [server]: https://docs.letta.com/letta-code/docker
 [API]: https://docs.letta.com/guides/get-started/intro
 [Gemini]: https://gemini.google.com
