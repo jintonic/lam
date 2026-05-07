@@ -19,8 +19,8 @@ The server can be accessed via [API] by other programs, including [Antigravity] 
   - [database/init.sql](letta/database/init.sql): a SQL script to [enable the vector extension][pgvector] for [PostgreSQL]. The script is executed automatically when a new [PostgreSQL] database is created.
   - [git](letta/git): Files to build the Docker image of the [Git] server to handle [MemFS] memory storage.
   - [cli/statusline.py](letta/cli/statusline.py): a Python script to show token usage in Letta [CLI].
-- [backupDB.sh](backupDB.sh): back up the [PostgreSQL] database to OneDrive, zipped.
-- [restoreDB.sh](restoreDB.sh): restore the [PostgreSQL] database from the latest zipped backup file.
+- [backup.sh](backup.sh): back up the [PostgreSQL] database to OneDrive, zipped; also pushes MemFS of all agents to their GitHub repositories.
+- [restore.sh](restore.sh): restore the [PostgreSQL] database from the latest zipped backup file; also pulls latest MemFS from GitHub repositories.
 
 ## Quick Start
 
