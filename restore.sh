@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # bash instead of sh must be used for associative array support
 declare -A AGENT_IDS
 AGENT_IDS["mandy"]="agent-75a17c6e-1841-4181-8c3d-6549d52db66a"
