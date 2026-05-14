@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 echo "Pushing agent memories to GitHub..."
 AGENTS_BASE="$HOME/.letta/agents"
 TIMESTAMP=$(date +%y%m%d%H%M)
