@@ -3,6 +3,7 @@
 declare -A AGENT_IDS
 AGENT_IDS["mandy"]="agent-75a17c6e-1841-4181-8c3d-6549d52db66a"
 AGENT_IDS["tina"]="agent-8c86b66c-4c47-454e-837b-ae106bd4ea6d"
+AGENT_IDS["bill"]="agent-a6729c4b-f27d-4ac5-8051-c6a12c3cb4ab"
 
 restore_memory() {
     local AGENT_NAME=$1
@@ -10,8 +11,16 @@ restore_memory() {
     local AGENT_DIR="$HOME/.letta/agents/$AGENT_ID"
 
     if [ ! -d "$AGENT_DIR" ]; then
-        echo "Error: Agent directory $AGENT_DIR not found. Is Letta running and the ID correct?"
-        exit 1
+        echo "$AGENT_DIR not found. Initializing it..."
+        if ! command -v letta >/dev/null 2>&1; then
+            echo "Error: 'letta' command not found. Is Letta CLI installed?"
+            exit 1
+        fi
+        letta -a "$AGENT_ID" -p "hi" > /dev/null 2>&1
+        if [ ! -d "$AGENT_DIR" ]; then
+            echo "Error: $AGENT_DIR could not be created. Is Letta server running?"
+            exit 1
+        fi
     fi
 
     echo "Restoring Git-backed MemFS for $AGENT_NAME ($AGENT_ID)..."
@@ -36,7 +45,7 @@ INPUT=$1
 DIR="$HOME/Library/CloudStorage/OneDrive-TheUniversityofSouthDakota/AI"
 
 # Case A: Specific Agent Name
-if [[ -n "${AGENT_IDS[$INPUT]}" ]]; then
+if [[ -n "$INPUT" ]] && [[ -n "${AGENT_IDS[$INPUT]}" ]]; then
     restore_memory "$INPUT"
     exit 0
 # Case B: Path to a specific .sql.gz file
@@ -52,7 +61,7 @@ elif [[ -z "$INPUT" ]]; then
     echo "Using latest database backup: $FILE"
 # Case D: Invalid Argument
 else
-    echo "Usage: ./restore.sh [mandy|tina|path/to/backup.sql.gz]"
+    echo "Usage: ./restore.sh [mandy|tina|bill|path/to/backup.sql.gz]"
     echo "If no argument is provided, the latest database backup in OneDrive will be used."
     exit 1
 fi
@@ -63,7 +72,7 @@ DB_USER="letta"
 DB_NAME="letta"
 
 echo "Stopping Letta application containers..."
-docker stop letta letta-mcp
+docker stop letta-mcp letta
 
 echo "Clearing database schema..."
 docker exec -i $CONTAINER psql -U $DB_USER -d $DB_NAME -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
