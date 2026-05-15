@@ -3,6 +3,7 @@ services:
     image: pgvector/pgvector:pg18-trixie
     container_name: letta-db
     restart: unless-stopped
+    ports: [ "5432:5432" ]
     environment:
       POSTGRES_USER: letta
       POSTGRES_PASSWORD: ${DB_PASSWORD}
