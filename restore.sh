@@ -42,7 +42,10 @@ restore_memory() {
 
 # parsing arguments
 INPUT=$1
+# on mac
 DIR="$HOME/Library/CloudStorage/OneDrive-TheUniversityofSouthDakota/AI"
+# on Hetzner, use this folder for backup
+[ ! -d $DIR ] && DIR="."
 
 # Case A: Specific Agent Name
 if [[ -n "$INPUT" ]] && [[ -n "${AGENT_IDS[$INPUT]}" ]]; then
@@ -72,7 +75,7 @@ DB_USER="letta"
 DB_NAME="letta"
 
 echo "Stopping Letta application containers..."
-docker stop letta-mcp letta
+docker stop letta
 
 echo "Clearing database schema..."
 docker exec -i $CONTAINER psql -U $DB_USER -d $DB_NAME -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
@@ -81,5 +84,5 @@ echo "Restoring $FILE to $CONTAINER..."
 gunzip -c "$FILE" | docker exec -i $CONTAINER psql -U $DB_USER -d $DB_NAME
 
 echo "Starting Letta application containers..."
-docker start letta letta-mcp
+docker start letta
 echo "Database restore complete."
