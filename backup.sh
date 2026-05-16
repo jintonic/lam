@@ -56,30 +56,33 @@ else
   # ---------------------------------------------------------------------
   echo "Environment: Linux detected (Hetzner). Initiating database dump..."
 
-    # Load production credentials from the local .env if available
-    if [ -f "./.env" ]; then
-      export $(grep -v '^#' ./.env | xargs)
-    elif [ -f "$HOME/lam/.env" ]; then
-      export $(grep -v '^#' "$HOME/lam/.env" | xargs)
-    fi
+  # force cron job to move into this directory
+  cd "$(dirname "$0")"
 
-    DB_CONTAINER="letta-db"
-    DB_USER="letta"
-    DB_NAME="letta"
+  # Load production credentials from the local .env if available
+  if [ -f "./.env" ]; then
+    export $(grep -v '^#' ./.env | xargs)
+  elif [ -f "$HOME/lam/.env" ]; then
+    export $(grep -v '^#' "$HOME/lam/.env" | xargs)
+  fi
 
-    # Target file is written directly to the execution directory
-    FILE="./lettaDB$TIMESTAMP.sql.gz"
+  DB_CONTAINER="letta-db"
+  DB_USER="letta"
+  DB_NAME="letta"
 
-    if ! docker ps --format '{{.Names}}' | grep -q "^$DB_CONTAINER$"; then
-      echo "Error: Database container '$DB_CONTAINER' is not running. Aborting DB dump."
-      exit 1
-    fi
+  # Target file is written directly to the execution directory
+  FILE="./lettaDB$TIMESTAMP.sql.gz"
 
-    echo "Exporting database state to $FILE..."
-    # No sudo required. Authenticates via environmental variables inside the stream.
-    docker exec -t -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" pg_dump -U "$DB_USER" "$DB_NAME" | gzip > "$FILE"
+  if ! docker ps --format '{{.Names}}' | grep -q "^$DB_CONTAINER$"; then
+    echo "Error: Database container '$DB_CONTAINER' is not running. Aborting DB dump."
+    exit 1
+  fi
 
-    echo "Database successfully saved to current folder."
+  echo "Exporting database state to $FILE..."
+  # No sudo required. Authenticates via environmental variables inside the stream.
+  docker exec -t -e PGPASSWORD="$DB_PASSWORD" "$DB_CONTAINER" pg_dump -U "$DB_USER" "$DB_NAME" | gzip > "$FILE"
+
+  echo "Database successfully saved to current folder."
 fi
 
 echo "========================================="
