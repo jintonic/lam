@@ -1,11 +1,15 @@
 # LAM - Long-term AI Memory
 
-This repository contains configurations and documentation of a self-hosted [Letta] [API] proxy [server] running in a [Docker] container that saves AI's memory using [MemFS] over [git], and uses [PostgreSQL] for metadata. The database is backed up to [OneDrive].
+This repository contains configurations and documentation of a self-hosted [Letta] [API] proxy [server] running in a [Docker] container that saves AI's memory using [MemFS] over [git], and uses [PostgreSQL] for metadata and conversation history. The database is backed up to [OneDrive].
 
 - **[MemFS] (via [git])**: Stores the AI's core "identity"—persona, learned preferences, behavioral rules, and project-specific knowledge.
 - **[PostgreSQL]**: Stores operational metadata, including agent configurations, message history, and vector embeddings ([pgvector]) for semantic search.
 
-The server can be accessed via [API] by other programs, including [Antigravity] through an [MCP] server, and the official Letta [ADE].
+The server can be accessed by [Antigravity] through an [MCP] server, the official Letta [ADE], the Letta Code [CLI], and the Letta Code Desktop app.
+
+This server is written in python. The official Letta Code written in TypeScript contains both a server and a client.
+
+[Letta] documentation talks about running a remote environment so that one can use his phone to connect to an agent running on that remote environment. This is accomplished by running the Letta Code server, not this self-hosted Python API proxy server. This sounds very useful, but is in practice very limiting. It only allow 3 agents created on the cloud to use the remote Letta Code server for calculation. It doesn't allow users to connect to a remote letta server's database where more agents can be defined.
 
 ## Files
 
@@ -14,7 +18,7 @@ The server can be accessed via [API] by other programs, including [Antigravity] 
   - a [Git] server to handle [MemFS] memory storage.
   - a [Redis] server to prevent [Git] and [Letta] accessing the same [MemFS] storage at the same time.
   - a [PostgreSQL] server for the [Letta] server, including [pgvector] extension for vector storage.
-  - a [MCP] server for [Antigravity] to interact with the [Letta] server.
+  - optionally, a [MCP] server for [Antigravity] to interact with the [Letta] server.
 - [letta](letta)
   - [database/init.sql](letta/database/init.sql): a SQL script to [enable the vector extension][pgvector] for [PostgreSQL]. The script is executed automatically when a new [PostgreSQL] database is created.
   - [git](letta/git): Files to build the Docker image of the [Git] server to handle [MemFS] memory storage.
@@ -48,6 +52,8 @@ One can then use `/remember` to help the agent update its memory. The contents o
 Note that the "Create an agent" button on the Letta [ADE] currently has the provider name "zai" hard-coded that doesn't exist in the self-hosted Letta server, hence cannot be used. Agents should be created via the [CLI].
 
 However, one can still use the [ADE] to configure an already created agent. In this case, after logging into <https://app.letta.com>, click "Default Project", choose "Manage Project", then click "Connect to a server" button for the first time. Insert <http://localhost:8283> in the field for the server URL, and the password from `.env` (as `LETTA_PASSWORD`) into the password field, then save. Select "Self-hosted servers" tab, select the server you have connected before, click "View agents" button, select the agent you have created, then you can start using it or configure it further (e.g. add tools, set model, etc.). **NOTE**: the memory blocks in [ADE] are not synced with the [CLI].
+
+The Letta Code Desktop app can't connect to the self-hosted Letta server, hence is less useful.
 
 ## Documentation
 

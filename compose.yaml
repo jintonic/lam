@@ -75,7 +75,7 @@ services:
   letta-mcp:
     image: ghcr.io/oculairmedia/letta-mcp-server-rust:rust-latest
     container_name: letta-mcp
-    restart: unless-stopped
+    profiles: [ "mcp" ]
     environment:
       - LETTA_BASE_URL=http://letta:8283
       - LETTA_PASSWORD=${LETTA_PASSWORD}
