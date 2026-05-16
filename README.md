@@ -16,7 +16,6 @@ This server is written in python. The official Letta Code written in TypeScript 
 - [compose.yaml](compose.yaml): the Docker [compose] file to start 5 services:
   - a [Letta] API proxy server to connect to AI model providers (e.g. OpenAI, Ollama, Google).
   - a [Git] server to handle [MemFS] memory storage.
-  - a [Redis] server to prevent [Git] and [Letta] accessing the same [MemFS] storage at the same time.
   - a [PostgreSQL] server for the [Letta] server, including [pgvector] extension for vector storage.
   - optionally, a [MCP] server for [Antigravity] to interact with the [Letta] server.
 - [letta](letta)
@@ -171,7 +170,6 @@ It is a great way for me to organize my ideas in Markdown format with the help o
 [pgvector]: https://github.com/pgvector/pgvector#getting-started
 [compose]: https://docs.docker.com/compose
 [ADE]: https://app.letta.com
-[Redis]: https://redis.io
 [CLI]: https://docs.letta.com/letta-code/cli
 [gemini-flash-lite-latest]: https://aistudio.google.com/rate-limit
 [Ollama]: https://ollama.com

@@ -17,18 +17,6 @@ services:
       retries: 3
       start_period: 30s
       start_interval: 2s
-  letta-redis:
-    image: redis:alpine
-    container_name: letta-redis
-    restart: unless-stopped
-    ports: [ "6379:6379" ]
-    healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping" ]
-      interval: 300s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-      start_interval: 2s
   letta-git:
     build: ./letta/git
     container_name: letta-git
@@ -56,11 +44,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       - LETTA_MEMFS_SERVICE_URL=http://letta-git:8285
-      - REDIS_URL=redis://letta-redis:6379
     depends_on:
       letta-git:
-        condition: service_healthy
-      letta-redis:
         condition: service_healthy
       letta-db:
         condition: service_healthy
