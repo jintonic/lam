@@ -51,6 +51,8 @@ class GitHTTPHandler(BaseHTTPRequestHandler):
     def _parse_path(self):
         parsed = urlparse(self.path)
         parts = parsed.path.strip("/").split("/")
+        # If Letta adds the /v1/ prefix, strip it out dynamically
+        if len(parts) > 0 and parts[0] == "v1": parts = parts[1:]
         if len(parts) < 3 or parts[0] != "git": return None, None, None
         agent_id = parts[1]
         git_op = "/" + "/".join(parts[3:]) if len(parts) > 3 else "/"
