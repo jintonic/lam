@@ -41,30 +41,13 @@ services:
     environment:
       - LETTA_PG_URI=postgresql://letta:${DB_PASSWORD}@letta-db:5432/letta
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
       - LETTA_MEMFS_SERVICE_URL=http://letta-git:8285
+      - SECURE=true 
+      - LETTA_SERVER_PASSWORD=${LETTA_PASSWORD}
     depends_on:
       letta-git:
         condition: service_healthy
       letta-db:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:8283/v1/health || exit 1" ]
-      interval: 300s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-      start_interval: 2s
-  letta-mcp:
-    image: ghcr.io/oculairmedia/letta-mcp-server-rust:rust-latest
-    container_name: letta-mcp
-    profiles: [ "mcp" ]
-    environment:
-      - LETTA_BASE_URL=http://letta:8283
-      - LETTA_PASSWORD=${LETTA_PASSWORD}
-    depends_on:
-      letta:
         condition: service_healthy
 volumes:
   pgsql:
